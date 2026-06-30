@@ -18,52 +18,55 @@ st.set_page_config(
 with st.sidebar:
     st.title("Chatie piee")
     if st.button("+ New Chat"):
-        st.session_state.message = []
+        st.session_state.messages = []
 
 
 
     
 
 
-if "message" not in st.session_state:
-    st.session_state.message = []
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
+    # Show newest messages first
+for message in reversed(st.session_state.messages):
+    if message["role"] == "user":
+        with st.chat_message("user"):
+            st.write(message['content'])
+    elif message["role"] == "assistant":
+        with st.chat_message("assistant"):
+            st.write(message['content']) 
+
+prompt = st.chat_input("Text the Ai assistant")
+
+if prompt:
     
-user_prompt = st.text_area(
-    "Enter your prompt here:",
-    placeholder="Ask me anything...",
+    st.session_state.messages.append(
+        {
+            "role":"user",
+            "content":prompt
+        }
+    )
 
-)
+    #accept prompt and write it to LLM
+    with st.chat_message("user"):
+        st.write(prompt);
 
-if st.button("generate response"):
-    if user_prompt:
-        st.session_state.message.append(
-            {
-                "role": "user",
-                "content": user_prompt,
-            }
-        )
+    with st.chat_message("assistant"):
+        response_placeholder = st.empty()
 
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=st.session_state.message
+            model ="llama-3.3-70b-versatile",
+            messages = st.session_state.messages
         )
 
         answer = response.choices[0].message.content
-        st.session_state.message.append(
-            {
-                "role": "assistant",
-                "content": answer,
-            }
-        )
-    else:
-        st.warning("Please enter a prompt")
+        
+        response_placeholder.write(answer)
 
-
-
-# Show newest messages first
-for message in reversed(st.session_state.message):
-    if message["role"] == "user":
-        st.write(f"User: {message['content']}")
-    elif message["role"] == "assistant":
-        st.write(f"Ai: {message['content']}") 
+    st.session_state.messages.append(
+        {
+            "role":"assistant",
+            "content":answer
+        }
+    )
