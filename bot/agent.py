@@ -1,4 +1,3 @@
-from httpx import stream
 from groq import Groq
 import streamlit as st
 import os
@@ -34,10 +33,8 @@ with st.sidebar:
     if st.button("+ New Chat"):
         st.session_state.messages = [
             {
-            "role":"system",
-            "content":"""
-                    you are a generic Ai assistant
-            """
+                "role": "system",
+                "content": "you are a generic Ai assistant"
             }
         ]
 
@@ -47,10 +44,15 @@ with st.sidebar:
         st.write(f".{chat}")
 
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = [
+        {
+            "role": "system",
+            "content": "you are a generic Ai assistant"
+        }
+    ]
 
-    # Show newest messages first
-for message in (st.session_state.messages):
+# Display chat messages from history
+for message in st.session_state.messages:
     if message["role"] == "user":
         with st.chat_message("user"):
             st.write(message['content'])
@@ -76,7 +78,7 @@ if prompt:
 
     #accept prompt and write it to LLM
     with st.chat_message("user"):
-        st.write(prompt);
+        st.write(prompt)
 
     with st.chat_message("assistant"):
         response_placeholder = st.empty()
