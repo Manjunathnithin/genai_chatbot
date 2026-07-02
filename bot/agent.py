@@ -26,10 +26,10 @@ with st.sidebar:
 
     model = st.selectbox(
         "choose Any Model",
-        {
+        [
             "llama-3.3-70b-versatile",
             "llama-3.1-8b-instant"
-        }
+        ]
     )
     if st.button("+ New Chat"):
         st.session_state.messages = [
